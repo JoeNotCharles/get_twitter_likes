@@ -3,15 +3,17 @@
 ## Installation requirements:
 
  1. python3
- 1. tweepy (easiest with `pip3 install tweepy`)
+ 1. tweepy
+    * Easiest with `pip3 install tweepy`
+    * Or download from <https://www.tweepy.org/>
 
 ## One-time setup:
 
- 1. Sign up for a Twitter developer account(https: // developer.twitter.com/)
+ 1. Sign up for a Twitter developer account (<https://developer.twitter.com/>)
  1. Create a new app.
  1. Go to "Keys and tokens" / "Access Token and Secret", and click "Generate",
     which will open a popup with all your tokens.
-    * "Access Token" should be something like 1234567890-abc123XYZ. The part
+    * "Access Token" should be something like `1234567890-abc123XYZ`. The part
       before the dash, which is all numbers, is your user ID.
  1. Copy all the values from the popup into creds.py:
    
