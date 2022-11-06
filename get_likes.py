@@ -4,6 +4,8 @@
 
 import collections
 import creds
+import json
+import sys
 import tweepy
 
 EXPANSIONS = [
@@ -95,3 +97,9 @@ def get_likes():
         tweet['references'] = dict(references)
 
     return liked_tweets
+
+
+if __name__ == '__main__':
+    tweets = get_likes()
+    with open(sys.argv[1], 'w') as f:
+        json.dump(tweets, f, indent=2, sort_keys=True)
