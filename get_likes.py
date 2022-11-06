@@ -53,29 +53,32 @@ def get_likes():
     media = {}
 
     next_token = None
+    page = 0
     while True:
-        response = client.get_liked_tweets(creds.user_id,
-                                           pagination_token=next_token,
-                                           expansions=EXPANSIONS,
-                                           media_fields=MEDIA_FIELDS,
-                                           tweet_fields=TWEET_FIELDS)
-        for tweet in util.get_dict_member(response, 'data', []):
-            liked_tweets[tweet['id']] = tweet
-        includes = util.get_dict_member(response, 'includes', {})
-        for m in util.get_dict_member(includes, 'media', []):
-            media[m['media_key']] = m
-        for u in util.get_dict_member(includes, 'users', []):
-            users[u['id']] = u
-        for t in util.get_dict_member(includes, 'tweets', []):
-            included_tweets[t['id']] = t
-        # TODO: go through response.includes, get media info, etc.
-        # tweet.data includes attachments/media_keys which should map the media info to tweets. (Same for author_id)
-        # Also handle response.errors
+        page += 1
         try:
-            next_token = util.get_dict_member(
-                response, 'meta', {})['next_token']
-        except KeyError:
-            break
+            response = client.get_liked_tweets(creds.user_id,
+                                               pagination_token=next_token,
+                                               expansions=EXPANSIONS,
+                                               media_fields=MEDIA_FIELDS,
+                                               tweet_fields=TWEET_FIELDS)
+            for tweet in util.get_dict_member(response, 'data', []):
+                liked_tweets[tweet['id']] = tweet
+            includes = util.get_dict_member(response, 'includes', {})
+            for m in util.get_dict_member(includes, 'media', []):
+                media[m['media_key']] = m
+            for u in util.get_dict_member(includes, 'users', []):
+                users[u['id']] = u
+            for t in util.get_dict_member(includes, 'tweets', []):
+                included_tweets[t['id']] = t
+            try:
+                next_token = util.get_dict_member(
+                    response, 'meta', {})['next_token']
+            except KeyError:
+                break
+        except:
+            print("Error on page {}, last pagination token {}".format(
+                page, next_token))
 
     # Embed attachment data in tweets
     for tweet in liked_tweets.values():

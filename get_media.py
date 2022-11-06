@@ -15,12 +15,14 @@ def download_media(media_dict, key, path):
     if not key in media_dict:
         return
     url = media_dict[key]
-    filename = os.path.basename(urllib.parse.urlparse(url).path)
-    os.makedirs(path, exist_ok=True)
-    with urllib.request.urlopen(url) as response:
-        with open(os.path.join(path, filename), 'wb') as f:
-            shutil.copyfileobj(response, f)
-
+    try:
+        filename = os.path.basename(urllib.parse.urlparse(url).path)
+        os.makedirs(path, exist_ok=True)
+        with urllib.request.urlopen(url) as response:
+            with open(os.path.join(path, filename), 'wb') as f:
+                shutil.copyfileobj(response, f)
+    except:
+        print("Failed to download {} to path {}".format(url, path))
 
 def get_media(tweets):
     for tweet_id in tweets:
