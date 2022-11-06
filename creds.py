@@ -3,7 +3,6 @@
 # found in the LICENSE file.
 
 # Replace the contents of each string with the value from your Twitter account.
-username = '<username>'
 user_id = '<user_id>'
 consumer_key = '<consumer_key>'
 consumer_secret = '<consumer_secret>'
