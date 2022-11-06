@@ -2,8 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import collections
 import creds
-import pprint
 import tweepy
 
 EXPANSIONS = [
@@ -49,8 +49,10 @@ def _get_member(d, key, default):
 
 def get_likes():
     liked_tweets = {}
+    included_tweets = {}
     users = {}
     media = {}
+
     next_token = None
     while True:
         response = client.get_liked_tweets(creds.user_id,
@@ -58,7 +60,6 @@ def get_likes():
                                            expansions=EXPANSIONS,
                                            media_fields=MEDIA_FIELDS,
                                            tweet_fields=TWEET_FIELDS)
-        pprint.pp(response)
         for tweet in _get_member(response, 'data', []):
             liked_tweets[tweet['id']] = tweet
         includes = _get_member(response, 'includes', {})
@@ -66,6 +67,8 @@ def get_likes():
             media[m['media_key']] = m
         for u in _get_member(includes, 'users', []):
             users[u['id']] = u
+        for t in _get_member(includes, 'tweets', []):
+            included_tweets[t['id']] = t
         # TODO: go through response.includes, get media info, etc.
         # tweet.data includes attachments/media_keys which should map the media info to tweets. (Same for author_id)
         # Also handle response.errors
@@ -74,7 +77,7 @@ def get_likes():
         except KeyError:
             break
 
-    # Attach users and media to tweets
+    # Embed attachment data in tweets
     for tweet in liked_tweets.values():
         if 'author_id' in tweet:
             tweet['author'] = _get_member(users, tweet['author_id'], None)
@@ -82,5 +85,13 @@ def get_likes():
         tweet['media'] = []
         for media_key in _get_member(attachments, 'media_keys', []):
             tweet['media'].append(_get_member(media, media_key, None))
+        references = collections.defaultdict(list)
+        referenced_tweets = _get_member(tweet, 'referenced_tweets', [])
+        for reference in referenced_tweets:
+            ref_type = reference['type']
+            ref_id = reference['id']
+            references[ref_type].append(
+                _get_member(included_tweets, ref_id, None))
+        tweet['references'] = dict(references)
 
     return liked_tweets
