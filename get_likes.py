@@ -46,40 +46,51 @@ client = tweepy.Client(bearer_token=creds.bearer_token,
                        return_type=dict)
 
 
+def get_next_page(next_token, page, all_liked_tweets, all_included_tweets, all_users, all_media):
+    liked_tweets = {}
+    included_tweets = {}
+    users = {}
+    media = {}
+    try:
+        response = client.get_liked_tweets(creds.user_id,
+                                           pagination_token=next_token,
+                                           expansions=EXPANSIONS,
+                                           media_fields=MEDIA_FIELDS,
+                                           tweet_fields=TWEET_FIELDS)
+        for tweet in util.get_dict_member(response, 'data', []):
+            liked_tweets[tweet['id']] = tweet
+        includes = util.get_dict_member(response, 'includes', {})
+        for m in util.get_dict_member(includes, 'media', []):
+            media[m['media_key']] = m
+        for u in util.get_dict_member(includes, 'users', []):
+            users[u['id']] = u
+        for t in util.get_dict_member(includes, 'tweets', []):
+            included_tweets[t['id']] = t
+    except:
+        print("Error on page {}, last pagination token {}".format(
+              page, next_token))
+        return None
+    all_liked_tweets.update(liked_tweets)
+    all_included_tweets.update(included_tweets)
+    all_users.update(users)
+    all_media.update(media)
+    return util.get_dict_member(
+        response, 'meta', {}).get('next_token', None)
+
+
 def get_likes():
     liked_tweets = {}
     included_tweets = {}
     users = {}
     media = {}
 
-    next_token = None
-    page = 0
-    while True:
+    page = 1
+    next_token = get_next_page(
+        None, page, liked_tweets, included_tweets, users, media)
+    while next_token:
         page += 1
-        try:
-            response = client.get_liked_tweets(creds.user_id,
-                                               pagination_token=next_token,
-                                               expansions=EXPANSIONS,
-                                               media_fields=MEDIA_FIELDS,
-                                               tweet_fields=TWEET_FIELDS)
-            for tweet in util.get_dict_member(response, 'data', []):
-                liked_tweets[tweet['id']] = tweet
-            includes = util.get_dict_member(response, 'includes', {})
-            for m in util.get_dict_member(includes, 'media', []):
-                media[m['media_key']] = m
-            for u in util.get_dict_member(includes, 'users', []):
-                users[u['id']] = u
-            for t in util.get_dict_member(includes, 'tweets', []):
-                included_tweets[t['id']] = t
-            try:
-                next_token = util.get_dict_member(
-                    response, 'meta', {})['next_token']
-            except KeyError:
-                break
-        except:
-            print("Error on page {}, last pagination token {}".format(
-                page, next_token))
-            raise
+        next_token = get_next_page(
+            next_token, page, liked_tweets, included_tweets, users, media)
 
     # Embed attachment data in tweets
     for tweet in liked_tweets.values():
