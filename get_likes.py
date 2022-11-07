@@ -79,6 +79,7 @@ def get_likes():
         except:
             print("Error on page {}, last pagination token {}".format(
                 page, next_token))
+            raise
 
     # Embed attachment data in tweets
     for tweet in liked_tweets.values():
