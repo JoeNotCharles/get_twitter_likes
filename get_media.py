@@ -17,9 +17,13 @@ def download_media(media_dict, key, path):
     url = media_dict[key]
     try:
         filename = os.path.basename(urllib.parse.urlparse(url).path)
+        full_path = os.path.join(path, filename)
+        if os.path.exists(full_path):
+            # Already downloaded
+            return
         os.makedirs(path, exist_ok=True)
         with urllib.request.urlopen(url) as response:
-            with open(os.path.join(path, filename), 'wb') as f:
+            with open(full_path, 'wb') as f:
                 shutil.copyfileobj(response, f)
     except:
         print("Failed to download {} to path {}".format(url, path))
