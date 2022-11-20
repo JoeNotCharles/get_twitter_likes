@@ -66,9 +66,9 @@ def get_next_page(next_token, page, all_liked_tweets, all_included_tweets, all_u
             users[u['id']] = u
         for t in util.get_dict_member(includes, 'tweets', []):
             included_tweets[t['id']] = t
-    except:
-        print("Error on page {}, last pagination token {}".format(
-              page, next_token))
+    except Exception as e:
+        print("Error on page {}, last pagination token {}: {}".format(
+              page, next_token, e))
         return None
     all_liked_tweets.update(liked_tweets)
     all_included_tweets.update(included_tweets)
