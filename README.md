@@ -15,7 +15,8 @@
     which will open a popup with all your tokens.
     * "Access Token" should be something like `1234567890-abc123XYZ`. The part
       before the dash, which is all numbers, is your user ID.
- 1. Copy all the values from the popup into creds.py:
+ 1. Copy all the values from the popup into `creds.py` (you can use
+    `creds.py.example` as a template):
    
     ```
     user_id = 'User ID (numeric part of Access Token)'
@@ -24,6 +25,7 @@
     bearer_token = 'Bearer Token'
     access_token = 'Access Token'
     access_token_secret = 'Access Token Secret'
+    ```
 
 ## To use:
 
